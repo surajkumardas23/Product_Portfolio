@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Suraj Das — Business Architecture Senior Analyst, AI & automation professional." />
+  <title>Suraj Das — Business Architecture & AI</title>
+  <style>
+    :root{
+      --bg:#f7f8fa;
+      --surface:#ffffff;
+      --surface-2:#f0f2f5;
+      --text:#111827;
+      --muted:#667085;
+      --line:#e4e7ec;
+      --accent:#1a73e8;
+      --accent-2:#34a853;
+      --shadow:0 20px 60px rgba(16,24,40,.08);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:var(--bg);
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+    }
+    a{color:inherit;text-decoration:none}
+    button{font:inherit}
+    .container{width:min(1120px,calc(100% - 40px));margin:auto}
+
+    /* Top navigation */
+    .nav-wrap{
+      position:sticky;
+      top:0;
+      z-index:100;
+      backdrop-filter:blur(16px);
+      background:rgba(247,248,250,.82);
+      border-bottom:1px solid rgba(228,231,236,.7);
+    }
+    nav{
+      height:72px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:11px;
+      font-weight:750;
+      letter-spacing:-.02em;
+    }
+    .brand-mark{
+      width:34px;height:34px;border-radius:11px;
+      display:grid;place-items:center;
+      color:#fff;background:var(--text);
+      font-size:14px;font-weight:800;
+    }
+    .nav-links{display:flex;gap:24px;color:var(--muted);font-size:14px}
+    .nav-links a:hover{color:var(--text)}
+    .nav-cta{
+      padding:10px 15px;border:1px solid var(--line);
+      border-radius:999px;background:var(--surface);
+      font-size:14px;font-weight:650;
+    }
+
+    /* Hero */
+    .hero{
+      min-height:calc(100vh - 72px);
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      align-items:center;
+      gap:70px;
+      padding:72px 0 90px;
+    }
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 12px;
+      border:1px solid var(--line);
+      background:var(--surface);
+      border-radius:999px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+    .eyebrow-dot{
+      width:7px;height:7px;border-radius:50%;
+      background:var(--accent-2);
+      box-shadow:0 0 0 5px rgba(52,168,83,.12);
+    }
+    h1{
+      font-size:clamp(46px,7vw,84px);
+      line-height:.98;
+      letter-spacing:-.065em;
+      margin:24px 0 24px;
+      max-width:760px;
+    }
+    .hero-copy{
+      font-size:19px;
+      color:var(--muted);
+      max-width:650px;
+      margin:0 0 30px;
+    }
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:9px;
+      min-height:46px;padding:0 18px;border-radius:13px;
+      border:1px solid var(--line);font-weight:700;font-size:14px;
+      transition:.2s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--text);color:#fff;border-color:var(--text)}
+    .btn-secondary{background:var(--surface)}
+
+    .hero-card{
+      position:relative;
+      background:var(--text);
+      color:#fff;
+      border-radius:32px;
+      padding:34px;
+      min-height:420px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .hero-card:before{
+      content:"";
+      position:absolute;
+      width:220px;height:220px;
+      border-radius:50%;
+      top:-90px;right:-70px;
+      background:rgba(26,115,232,.35);
+      filter:blur(8px);
+    }
+    .hero-card:after{
+      content:"";
+      position:absolute;
+      width:180px;height:180px;
+      border-radius:50%;
+      bottom:-90px;left:-65px;
+      background:rgba(52,168,83,.25);
+      filter:blur(5px);
+    }
+    .card-top{position:relative;z-index:1}
+    .initials{
+      width:68px;height:68px;border-radius:20px;
+      background:#fff;color:var(--text);
+      display:grid;place-items:center;
+      font-weight:850;font-size:25px;letter-spacing:-.05em;
+      margin-bottom:25px;
+    }
+    .hero-card h2{
+      font-size:32px;line-height:1.05;letter-spacing:-.04em;margin:0 0 12px;
+    }
+    .hero-card p{color:rgba(255,255,255,.72);margin:0;max-width:380px}
+    .mini-grid{
+      position:absolute;z-index:1;left:34px;right:34px;bottom:32px;
+      display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+    }
+    .mini-stat{
+      padding:14px;border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.07);border-radius:15px;
+    }
+    .mini-stat strong{display:block;font-size:20px}
+    .mini-stat span{font-size:11px;color:rgba(255,255,255,.62)}
+
+    /* Sections */
+    section{padding:92px 0}
+    .section-head{
+      display:flex;align-items:end;justify-content:space-between;
+      gap:30px;margin-bottom:38px;
+    }
+    .section-kicker{
+      color:var(--accent);
+      font-size:12px;font-weight:800;
+      text-transform:uppercase;letter-spacing:.12em;
+      margin-bottom:8px;
+    }
+    h2.section-title{
+      margin:0;
+      font-size:clamp(32px,4vw,48px);
+      letter-spacing:-.05em;
+      line-height:1;
+    }
+    .section-note{margin:0;color:var(--muted);max-width:430px;font-size:15px}
+
+    /* Expertise */
+    .skill-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .skill-card{
+      background:var(--surface);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:25px;
+      transition:.2s ease;
+    }
+    .skill-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(16,24,40,.06)}
+    .skill-number{
+      width:36px;height:36px;border-radius:12px;
+      display:grid;place-items:center;background:var(--surface-2);
+      font-weight:800;font-size:12px;margin-bottom:36px;
+    }
+    .skill-card h3{margin:0 0 7px;font-size:18px;letter-spacing:-.02em}
+    .skill-card p{margin:0;color:var(--muted);font-size:14px}
+
+    /* Experience */
+    .timeline{position:relative}
+    .timeline:before{
+      content:"";position:absolute;left:9px;top:8px;bottom:8px;width:1px;background:var(--line);
+    }
+    .experience-item{
+      position:relative;
+      padding:0 0 44px 42px;
+    }
+    .experience-item:last-child{padding-bottom:0}
+    .timeline-dot{
+      position:absolute;left:0;top:7px;width:20px;height:20px;
+      border-radius:50%;background:var(--surface);
+      border:5px solid var(--text);
+    }
+    .exp-meta{
+      display:flex;justify-content:space-between;gap:25px;align-items:flex-start;
+    }
+    .company{font-size:21px;font-weight:800;letter-spacing:-.02em}
+    .role{font-size:15px;color:var(--muted);margin-top:2px}
+    .date{
+      white-space:nowrap;color:var(--muted);font-size:13px;
+      padding:8px 11px;background:var(--surface-2);border-radius:999px;
+    }
+    .location{color:#98a2b3;font-size:13px;margin-top:5px}
+    .details{
+      margin:18px 0 0;
+      padding-left:18px;
+      color:#475467;
+      font-size:14px;
+      max-width:850px;
+    }
+    .details li{margin:9px 0;padding-left:3px}
+
+    /* Education */
+    .edu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .edu-card{
+      background:var(--surface);border:1px solid var(--line);
+      border-radius:var(--radius);padding:25px;min-height:190px;
+    }
+    .edu-year{font-size:12px;color:var(--muted);font-weight:750}
+    .edu-card h3{font-size:18px;line-height:1.25;margin:35px 0 7px;letter-spacing:-.02em}
+    .edu-card p{margin:0;color:var(--muted);font-size:14px}
+
+    /* Certifications */
+    .cert-wrap{
+      background:var(--text);color:#fff;border-radius:30px;padding:34px;
+    }
+    .cert-header{
+      display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:25px;
+    }
+    .cert-header p{margin:0;color:rgba(255,255,255,.65);max-width:440px;font-size:14px}
+    .cert-grid{display:flex;flex-wrap:wrap;gap:10px}
+    .pill{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      border-radius:999px;padding:11px 14px;
+      font-size:13px;color:rgba(255,255,255,.84);
+    }
+
+    /* Contact */
+    .contact{
+      padding-bottom:70px;
+    }
+    .contact-box{
+      border:1px solid var(--line);background:var(--surface);
+      border-radius:30px;padding:38px;
+      display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center;
+    }
+    .contact-box h2{font-size:40px;line-height:1;letter-spacing:-.05em;margin:0 0 10px}
+    .contact-box p{color:var(--muted);margin:0}
+    .contact-links{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .contact-link{
+      display:flex;align-items:center;gap:8px;
+      padding:11px 14px;border:1px solid var(--line);
+      border-radius:12px;font-size:13px;font-weight:700;
+      background:var(--surface);
+    }
+
+    footer{
+      padding:25px 0 35px;
+      color:#98a2b3;font-size:12px;
+      border-top:1px solid var(--line);
+    }
+    .footer-inner{display:flex;justify-content:space-between;gap:20px}
+
+    /* Subtle reveal */
+    .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease, transform .7s ease}
+    .reveal.visible{opacity:1;transform:none}
+
+    @media (max-width:900px){
+      .nav-links{display:none}
+      .hero{grid-template-columns:1fr;gap:40px;padding-top:50px}
+      .hero-card{min-height:360px}
+      .skill-grid,.edu-grid{grid-template-columns:1fr}
+      .contact-box{grid-template-columns:1fr}
+      .contact-links{justify-content:flex-start}
+    }
+    @media (max-width:640px){
+      .container{width:min(100% - 28px,1120px)}
+      nav{height:64px}
+      .nav-cta{padding:9px 12px}
+      .hero{min-height:auto;padding:55px 0 70px}
+      h1{font-size:54px}
+      .hero-copy{font-size:17px}
+      section{padding:68px 0}
+      .section-head{display:block}
+      .section-note{margin-top:12px}
+      .exp-meta{display:block}
+      .date{display:inline-block;margin-top:10px}
+      .contact-box{padding:26px}
+      .contact-box h2{font-size:34px}
+      .cert-wrap{padding:26px}
+      .cert-header{display:block}
+      .cert-header p{margin-top:10px}
+      .mini-grid{grid-template-columns:1fr;position:static;margin-top:35px}
+      .hero-card{min-height:auto}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="nav-wrap">
+    <div class="container">
+      <nav>
+        <a class="brand" href="#top" aria-label="Suraj Das home">
+          <span class="brand-mark">SD</span>
+          <span>Suraj Das</span>
+        </a>
+        <div class="nav-links">
+          <a href="#expertise">Expertise</a>
+          <a href="#experience">Experience</a>
+          <a href="#education">Education</a>
+        </div>
+        <a class="nav-cta" href="#contact">Get in touch</a>
+      </nav>
+    </div>
+  </div>
+
+  <main id="top">
+    <section class="hero container">
+      <div class="reveal">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> Business Architecture · AI · Automation</div>
+        <h1>Turning complex processes into simpler systems.</h1>
+        <p class="hero-copy">
+          Senior Business Analyst at Accenture with experience across business architecture,
+          process improvement, automation, requirements, testing, and AI-powered productivity.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#experience">View experience <span>↓</span></a>
+          <a class="btn btn-secondary" href="mailto:suraj.das902@gmail.com">Email me</a>
+          <a class="btn btn-secondary" href="https://www.linkedin.com/in/suraj-kumar-das" target="_blank" rel="noopener">LinkedIn ↗</a>
+        </div>
+      </div>
+
+      <aside class="hero-card reveal">
+        <div class="card-top">
+          <div class="initials">SD</div>
+          <h2>Suraj Das</h2>
+          <p>Senior Business Analyst — Accenture<br />Pune District, Maharashtra, India</p>
+        </div>
+        <div class="mini-grid">
+          <div class="mini-stat"><strong>AI</strong><span>Copilot & prompting</span></div>
+          <div class="mini-stat"><strong>RPA</strong><span>UiPath automation</span></div>
+          <div class="mini-stat"><strong>LSSBB</strong><span>Process improvement</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="expertise">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <div class="section-kicker">01 / Expertise</div>
+            <h2 class="section-title">What I work with.</h2>
+          </div>
+          <p class="section-note">A practical mix of AI, process improvement, business analysis and automation capabilities.</p>
+        </div>
+        <div class="skill-grid">
+          <article class="skill-card reveal">
+            <div class="skill-number">01</div>
+            <h3>Microsoft Copilot</h3>
+            <p>AI-powered productivity and Copilot-focused workflows.</p>
+          </article>
+          <article class="skill-card reveal">
+            <div class="skill-number">02</div>
+            <h3>Copilot Studio</h3>
+            <p>Working with Microsoft’s Copilot Studio ecosystem.</p>
+          </article>
+          <article class="skill-card reveal">
+            <div class="skill-number">03</div>
+            <h3>Prompt Engineering</h3>
+            <p>Structured prompting for practical generative-AI use cases.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="experience">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <div class="section-kicker">02 / Experience</div>
+            <h2 class="section-title">Building better ways of working.</h2>
+          </div>
+          <p class="section-note">Experience spanning Accenture, Aligned Automation and PwC India.</p>
+        </div>
+
+        <div class="timeline">
+          <article class="experience-item reveal">
+            <span class="timeline-dot"></span>
+            <div class="exp-meta">
+              <div>
+                <div class="company">Accenture</div>
+                <div class="role">Business Architecture Senior Analyst</div>
+                <div class="location">Pune City, Maharashtra, India</div>
+              </div>
+              <div class="date">July 2024 – Present · 2 years 3 months</div>
+            </div>
+          </article>
+
+          <article class="experience-item reveal">
+            <span class="timeline-dot"></span>
+            <div class="exp-meta">
+              <div>
+                <div class="company">Aligned Automation</div>
+                <div class="role">Summer Internship</div>
+                <div class="location">Pune, Maharashtra, India</div>
+              </div>
+              <div class="date">April 2023 – June 2023 · 3 months</div>
+            </div>
+            <ul class="details">
+              <li>Captured user requirements and delineated the project scope for the mobile app.</li>
+              <li>Specified software requirements and established project deliverables.</li>
+              <li>Standardized steps to identify which web apps would benefit clients if converted to mobile apps.</li>
+              <li>Formulated the Work Breakdown Structure (WBS) for the project.</li>
+              <li>Engineered the workflow architecture of the mobile app.</li>
+              <li>Conducted risk analysis, created a risk matrix, and devised resolution strategies for identified risks.</li>
+              <li>Developed a prototype of the Supplier Ideas mobile app.</li>
+              <li>Crafted detailed test cases for the app's testing phase.</li>
+            </ul>
+          </article>
+
+          <article class="experience-item reveal">
+            <span class="timeline-dot"></span>
+            <div class="exp-meta">
+              <div>
+                <div class="company">PwC India</div>
+                <div class="role">Technology Consultant</div>
+                <div class="location">Mumbai, Maharashtra, India</div>
+              </div>
+              <div class="date">October 2020 – November 2021 · 1 year 2 months</div>
+            </div>
+            <ul class="details">
+              <li>Orchestrated process walkthrough sessions, collaborated with stakeholders to gather prerequisites, and crafted comprehensive documentation detailing the process and solution design.</li>
+              <li>Conducted an end-to-end analysis of three reconciliation processes for an AMC.</li>
+              <li>Automated three critical reconciliation procedures on UiPath: debt and equity reconciliation, NAV reconciliation, and saleable and position reconciliation.</li>
+              <li>Directed and executed rigorous testing in the UAT environment using targeted test cases and ensured seamless deployment.</li>
+              <li>Delivered extensive process guidance for the UiPath solution and engineered enhancements based on specific requirements.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="certifications">
+      <div class="container">
+        <div class="cert-wrap reveal">
+          <div class="cert-header">
+            <div>
+              <div class="section-kicker" style="color:#8ab4f8;">03 / Certifications</div>
+              <h2 class="section-title" style="color:#fff;">Learning in public.</h2>
+            </div>
+            <p>Selected certifications and learning areas listed in the profile.</p>
+          </div>
+          <div class="cert-grid">
+            <span class="pill">Data Driven Process Improvement</span>
+            <span class="pill">Reinvention with Agentic AI</span>
+            <span class="pill">AI-Powered Productivity with M365</span>
+            <span class="pill">Copilot</span>
+            <span class="pill">Lean Six Sigma Black Belt</span>
+            <span class="pill">Generative AI Mastermind</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="education">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <div class="section-kicker">04 / Education</div>
+            <h2 class="section-title">A foundation across business & technology.</h2>
+          </div>
+          <p class="section-note">Academic background from operations and supply chain management to information technology.</p>
+        </div>
+
+        <div class="edu-grid">
+          <article class="edu-card reveal">
+            <div class="edu-year">June 2022 – March 2024</div>
+            <h3>Symbiosis Institute of Management Studies</h3>
+            <p>MBA, Operations & Supply Chain Management</p>
+          </article>
+          <article class="edu-card reveal">
+            <div class="edu-year">2017 – 2020</div>
+            <h3>St. Xavier's College</h3>
+            <p>Bachelor of Information Technology</p>
+          </article>
+          <article class="edu-card reveal">
+            <div class="edu-year">February 2015 – March 2017</div>
+            <h3>Navy Children School</h3>
+            <p>SSC, Science</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="contact">
+      <div class="container">
+        <div class="contact-box reveal">
+          <div>
+            <div class="section-kicker">05 / Contact</div>
+            <h2>Let’s build something useful.</h2>
+            <p>Reach out by email or connect on LinkedIn.</p>
+          </div>
+          <div class="contact-links">
+            <a class="contact-link" href="mailto:suraj.das902@gmail.com">✉ Email</a>
+            <a class="contact-link" href="tel:+917008765647">☎ 7008765647</a>
+            <a class="contact-link" href="https://www.linkedin.com/in/suraj-kumar-das" target="_blank" rel="noopener">in LinkedIn</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <span>© <span id="year"></span> Suraj Das</span>
+      <span>Business Architecture · AI · Automation</span>
+    </div>
+  </footer>
+
+  <script>
+    // Reveal sections as they enter the viewport.
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
