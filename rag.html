@@ -1,0 +1,2405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RAG Simulator — Learn Retrieval Augmented Generation</title>
+
+<style>
+:root {
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --border: #e5e7eb;
+  --text: #111827;
+  --muted: #6b7280;
+  --primary: #635bff;
+  --primary-light: #eeedff;
+  --green: #16a34a;
+  --green-light: #ecfdf3;
+  --orange: #ea580c;
+  --orange-light: #fff7ed;
+  --blue: #2563eb;
+  --blue-light: #eff6ff;
+  --red: #dc2626;
+  --red-light: #fef2f2;
+  --purple: #7c3aed;
+  --shadow: 0 10px 35px rgba(15, 23, 42, 0.07);
+  --radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+/* ---------- APP ---------- */
+
+.app {
+  min-height: 100vh;
+}
+
+.topbar {
+  height: 72px;
+  background: rgba(255,255,255,.9);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 750;
+  letter-spacing: -.02em;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #635bff, #8b5cf6);
+  display: grid;
+  place-items: center;
+  color: white;
+  font-weight: 900;
+  box-shadow: 0 7px 18px rgba(99,91,255,.25);
+}
+
+.brand span {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.top-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: var(--green-light);
+  color: var(--green);
+}
+
+.container {
+  max-width: 1450px;
+  margin: auto;
+  padding: 32px;
+}
+
+/* ---------- HERO ---------- */
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.3fr .7fr;
+  gap: 22px;
+  margin-bottom: 28px;
+}
+
+.hero-main,
+.hero-side {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.hero-main {
+  padding: 36px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-main::after {
+  content: "";
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  right: -150px;
+  top: -180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,91,255,.12), transparent 65%);
+}
+
+.eyebrow {
+  color: var(--primary);
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: .12em;
+  margin-bottom: 12px;
+}
+
+h1 {
+  font-size: clamp(34px, 4vw, 58px);
+  line-height: .98;
+  letter-spacing: -.055em;
+  margin: 0 0 18px;
+  max-width: 800px;
+}
+
+.hero-main p {
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.65;
+  max-width: 750px;
+  margin: 0;
+}
+
+.hero-side {
+  padding: 26px;
+}
+
+.mini-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  font-weight: 800;
+  margin-bottom: 15px;
+}
+
+.flow-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flow-mini-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.flow-mini-item.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 750;
+}
+
+.flow-number {
+  width: 25px;
+  height: 25px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* ---------- SIMULATOR ---------- */
+
+.simulator {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+}
+
+/* ---------- SIDEBAR ---------- */
+
+.sidebar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+  height: fit-content;
+  position: sticky;
+  top: 92px;
+}
+
+.sidebar-header {
+  padding: 5px 8px 16px;
+}
+
+.sidebar-header strong {
+  display: block;
+  font-size: 14px;
+}
+
+.sidebar-header small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.step {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 11px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--text);
+  margin-bottom: 3px;
+  transition: .18s;
+}
+
+.step:hover {
+  background: var(--surface-2);
+}
+
+.step.active {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.step.completed .step-icon {
+  background: var(--green-light);
+  color: var(--green);
+  border-color: #bbf7d0;
+}
+
+.step-icon {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.step-info {
+  min-width: 0;
+}
+
+.step-name {
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.step-sub {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.sidebar-footer {
+  margin-top: 15px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+
+.progress {
+  height: 7px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #8b5cf6);
+  width: 0%;
+  transition: width .4s;
+}
+
+/* ---------- MAIN PANEL ---------- */
+
+.main-panel {
+  min-width: 0;
+}
+
+.stage {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-height: 640px;
+  overflow: hidden;
+}
+
+.stage-top {
+  padding: 24px 26px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.stage-title {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+}
+
+.stage-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+}
+
+.stage-title h2 {
+  margin: 0;
+  font-size: 21px;
+  letter-spacing: -.03em;
+}
+
+.stage-title p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.stage-body {
+  padding: 28px;
+}
+
+/* ---------- CARDS ---------- */
+
+.card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.card.soft {
+  background: var(--surface-2);
+}
+
+.card-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--muted);
+  letter-spacing: .08em;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 14px;
+}
+
+/* ---------- DOCUMENTS ---------- */
+
+.document {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 10px;
+  background: white;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.document:hover {
+  border-color: #c7d2fe;
+  transform: translateY(-1px);
+}
+
+.document.selected {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.doc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 7px;
+}
+
+.doc-name {
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.doc-type {
+  font-size: 9px;
+  padding: 4px 7px;
+  background: var(--surface-2);
+  border-radius: 6px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.document p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ---------- CHUNKS ---------- */
+
+.chunk {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--blue);
+  padding: 13px;
+  border-radius: 10px;
+  margin-bottom: 9px;
+  background: white;
+  position: relative;
+}
+
+.chunk-number {
+  font-size: 9px;
+  color: var(--blue);
+  font-weight: 850;
+  margin-bottom: 6px;
+}
+
+.chunk-text {
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.chunk-meta {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: 9px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+/* ---------- VECTOR ---------- */
+
+.vector {
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 10px;
+  line-height: 1.8;
+  padding: 13px;
+  border-radius: 10px;
+  background: #111827;
+  color: #d1d5db;
+  overflow-x: auto;
+}
+
+.vector .number {
+  color: #a78bfa;
+}
+
+/* ---------- DATABASE ---------- */
+
+.db-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 100px 100px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+
+.db-row:last-child {
+  border-bottom: 0;
+}
+
+.db-head {
+  color: var(--muted);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 800;
+}
+
+.db-id {
+  font-weight: 800;
+}
+
+.similarity {
+  font-family: monospace;
+  font-weight: 800;
+}
+
+.metadata {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+/* ---------- QUERY ---------- */
+
+textarea,
+input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 13px 14px;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: .2s;
+  background: white;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+textarea:focus,
+input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(99,91,255,.08);
+}
+
+button.primary {
+  border: 0;
+  background: var(--primary);
+  color: white;
+  padding: 11px 16px;
+  border-radius: 11px;
+  font-weight: 750;
+  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(99,91,255,.2);
+}
+
+button.secondary {
+  border: 1px solid var(--border);
+  background: white;
+  padding: 10px 14px;
+  border-radius: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+/* ---------- SCORE ---------- */
+
+.score {
+  height: 8px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+  margin-top: 7px;
+}
+
+.score-fill {
+  height: 100%;
+  border-radius: inherit;
+  width: 0;
+  transition: width 1s ease;
+  background: var(--primary);
+}
+
+.rank {
+  display: grid;
+  grid-template-columns: 34px 1fr 70px;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rank:last-child {
+  border-bottom: 0;
+}
+
+.rank-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: var(--surface-2);
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.rank-text {
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.rank-score {
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: right;
+}
+
+/* ---------- PIPELINE ---------- */
+
+.pipeline {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 5px 0 18px;
+}
+
+.pipeline-node {
+  min-width: 105px;
+  text-align: center;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.pipeline-node.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: #c7d2fe;
+}
+
+.pipeline-arrow {
+  color: #9ca3af;
+  font-size: 15px;
+}
+
+/* ---------- LLM ---------- */
+
+.prompt-box {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.prompt-section {
+  padding: 15px;
+  border-bottom: 1px solid var(--border);
+}
+
+.prompt-section:last-child {
+  border-bottom: 0;
+}
+
+.prompt-label {
+  font-size: 9px;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+
+.prompt-content {
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.system-context {
+  background: #faf5ff;
+}
+
+.user-context {
+  background: #eff6ff;
+}
+
+.rag-context {
+  background: #f0fdf4;
+}
+
+/* ---------- ANSWER ---------- */
+
+.answer {
+  background: #111827;
+  color: white;
+  border-radius: 16px;
+  padding: 23px;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.answer-label {
+  font-size: 10px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.citation {
+  display: inline-flex;
+  font-size: 9px;
+  background: rgba(255,255,255,.12);
+  padding: 2px 6px;
+  border-radius: 5px;
+  margin-left: 4px;
+  color: #c4b5fd;
+}
+
+/* ---------- INFO ---------- */
+
+.explanation {
+  margin-top: 18px;
+  background: var(--blue-light);
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  padding: 15px;
+}
+
+.explanation strong {
+  font-size: 12px;
+}
+
+.explanation p {
+  font-size: 11px;
+  color: #475569;
+  line-height: 1.6;
+  margin: 6px 0 0;
+}
+
+.warning {
+  background: var(--orange-light);
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+}
+
+.success {
+  background: var(--green-light);
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+/* ---------- FOOTER NAV ---------- */
+
+.stage-nav {
+  padding: 18px 26px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stage-nav-info {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 1000px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .simulator {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+
+  .step {
+    display: inline-flex;
+    width: auto;
+    margin-right: 4px;
+  }
+
+  .step-sub {
+    display: none;
+  }
+
+  .sidebar {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .sidebar-header,
+  .sidebar-footer {
+    display: none;
+  }
+}
+
+@media (max-width: 650px) {
+  .container {
+    padding: 16px;
+  }
+
+  .topbar {
+    padding: 0 16px;
+  }
+
+  .hero-main {
+    padding: 25px;
+  }
+
+  .stage-body {
+    padding: 18px;
+  }
+
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .db-row {
+    grid-template-columns: 45px 1fr 70px;
+  }
+
+  .db-row > :last-child {
+    display: none;
+  }
+
+  .stage-top {
+    padding: 18px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">R</div>
+      RAG Lab <span>/ Interactive Simulator</span>
+    </div>
+
+    <div class="top-actions">
+      <div class="badge">● Interactive</div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- HERO -->
+    <section class="hero">
+
+      <div class="hero-main">
+        <div class="eyebrow">Retrieval Augmented Generation</div>
+
+        <h1>
+          Understand RAG by
+          <span style="color:#635bff;">watching it work.</span>
+        </h1>
+
+        <p>
+          Follow a question through the complete RAG pipeline — from raw
+          documents and chunking to embeddings, vector search, reranking,
+          context assembly and the final LLM answer.
+        </p>
+      </div>
+
+      <div class="hero-side">
+
+        <div class="mini-title">Complete RAG pipeline</div>
+
+        <div class="flow-mini">
+
+          <div class="flow-mini-item active">
+            <div class="flow-number">1</div>
+            Data ingestion
+          </div>
+
+          <div class="flow-mini-item">
+            <div class="flow-number">2</div>
+            Chunking
+          </div>
+
+          <div class="flow-mini-item">
+            <div class="flow-number">3</div>
+            Embeddings
+          </div>
+
+          <div class="flow-mini-item">
+            <div class="flow-number">4</div>
+            Vector database
+          </div>
+
+          <div class="flow-mini-item">
+            <div class="flow-number">5</div>
+            Query & retrieval
+          </div>
+
+          <div class="flow-mini-item">
+            <div class="flow-number">6</div>
+            Reranking
+          </div>
+
+          <div class="flow-mini-item">
+            <div class="flow-number">7</div>
+            Context assembly
+          </div>
+
+          <div class="flow-mini-item">
+            <div class="flow-number">8</div>
+            LLM generation
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SIMULATOR -->
+    <section class="simulator">
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+
+        <div class="sidebar-header">
+          <strong>RAG Pipeline</strong>
+          <small>Click any stage to explore</small>
+        </div>
+
+        <div id="stepList"></div>
+
+        <div class="sidebar-footer">
+
+          <div class="progress-label">
+            <span>Your progress</span>
+            <strong id="progressText">1 / 8</strong>
+          </div>
+
+          <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+
+        </div>
+
+      </aside>
+
+      <!-- MAIN -->
+      <section class="main-panel">
+
+        <div class="stage">
+
+          <div class="stage-top">
+
+            <div class="stage-title">
+
+              <div class="stage-icon" id="stageIcon">01</div>
+
+              <div>
+                <h2 id="stageTitle">Data Ingestion</h2>
+                <p id="stageSubtitle">
+                  Bring your knowledge into the RAG system
+                </p>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="stage-body" id="stageBody"></div>
+
+          <div class="stage-nav">
+
+            <div class="stage-nav-info" id="navInfo">
+              Stage 1 of 8
+            </div>
+
+            <div class="nav-buttons">
+              <button class="secondary" id="prevBtn">← Previous</button>
+              <button class="primary" id="nextBtn">Next →</button>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </section>
+
+  </main>
+
+</div>
+
+<script>
+
+/* =========================================================
+   RAG SIMULATOR DATA
+========================================================= */
+
+const stages = [
+  {
+    id: "ingestion",
+    title: "Data Ingestion",
+    subtitle: "Bring your knowledge into the RAG system",
+    icon: "01"
+  },
+  {
+    id: "chunking",
+    title: "Chunking",
+    subtitle: "Break large documents into useful retrieval units",
+    icon: "02"
+  },
+  {
+    id: "embedding",
+    title: "Embedding",
+    subtitle: "Convert text into numerical representations",
+    icon: "03"
+  },
+  {
+    id: "database",
+    title: "Vector Database",
+    subtitle: "Store chunks, embeddings and metadata",
+    icon: "04"
+  },
+  {
+    id: "retrieval",
+    title: "Query & Retrieval",
+    subtitle: "Find candidate chunks using semantic similarity",
+    icon: "05"
+  },
+  {
+    id: "reranking",
+    title: "Reranking",
+    subtitle: "Improve the ordering of retrieved candidates",
+    icon: "06"
+  },
+  {
+    id: "context",
+    title: "Context Assembly",
+    subtitle: "Build the information package sent to the LLM",
+    icon: "07"
+  },
+  {
+    id: "generation",
+    title: "LLM Generation",
+    subtitle: "Generate a grounded answer using retrieved context",
+    icon: "08"
+  }
+];
+
+let currentStage = 0;
+
+const documents = [
+  {
+    name: "Employee Leave Policy.pdf",
+    type: "PDF",
+    description:
+      "Company policy covering annual leave, sick leave, casual leave and approval workflows.",
+    pages: 14
+  },
+  {
+    name: "Work From Home Policy.docx",
+    type: "DOCX",
+    description:
+      "Rules governing remote work, eligibility, approvals and work-from-home limits.",
+    pages: 8
+  },
+  {
+    name: "Employee Handbook.pdf",
+    type: "PDF",
+    description:
+      "General employee policies, benefits, working hours and workplace guidelines.",
+    pages: 72
+  }
+];
+
+const chunks = [
+  {
+    id: "C001",
+    text: "Employees are entitled to 18 days of annual leave during each calendar year.",
+    metadata: "Leave Policy · Page 4",
+    vector: [0.12, -0.43, 0.78, 0.21, -0.09]
+  },
+  {
+    id: "C002",
+    text: "Annual leave requests should normally be submitted at least 3 working days before the intended leave date.",
+    metadata: "Leave Policy · Page 5",
+    vector: [0.17, -0.38, 0.71, 0.29, -0.11]
+  },
+  {
+    id: "C003",
+    text: "Employees may carry forward up to 5 unused annual leave days into the following calendar year.",
+    metadata: "Leave Policy · Page 7",
+    vector: [0.08, -0.34, 0.68, 0.31, -0.15]
+  },
+  {
+    id: "C004",
+    text: "Sick leave is available when an employee is unable to work due to illness.",
+    metadata: "Leave Policy · Page 8",
+    vector: [0.44, -0.12, 0.31, 0.52, 0.03]
+  },
+  {
+    id: "C005",
+    text: "Work from home may be requested by eligible employees with manager approval.",
+    metadata: "WFH Policy · Page 3",
+    vector: [-0.12, 0.54, 0.21, 0.42, 0.18]
+  },
+  {
+    id: "C006",
+    text: "Employees are expected to work their standard contractual working hours.",
+    metadata: "Handbook · Page 18",
+    vector: [0.22, 0.19, -0.11, 0.73, 0.06]
+  }
+];
+
+const similarityScores = {
+  C001: 0.94,
+  C002: 0.91,
+  C003: 0.83,
+  C004: 0.58,
+  C005: 0.31,
+  C006: 0.24
+};
+
+const rerankScores = {
+  C001: 0.98,
+  C002: 0.95,
+  C003: 0.81,
+  C004: 0.42,
+  C005: 0.17,
+  C006: 0.09
+};
+
+const userQuery =
+  "How many annual leave days can an employee take in a year?";
+
+const systemPrompt =
+  "You are an HR assistant. Answer using the provided company context. If the context does not contain the answer, say you do not have enough information. Do not invent company policy.";
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const stepList = document.getElementById("stepList");
+const stageTitle = document.getElementById("stageTitle");
+const stageSubtitle = document.getElementById("stageSubtitle");
+const stageIcon = document.getElementById("stageIcon");
+const stageBody = document.getElementById("stageBody");
+const progressText = document.getElementById("progressText");
+const progressBar = document.getElementById("progressBar");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const navInfo = document.getElementById("navInfo");
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+function renderSidebar() {
+
+  stepList.innerHTML = "";
+
+  stages.forEach((stage, index) => {
+
+    const button = document.createElement("button");
+
+    button.className =
+      "step " +
+      (index === currentStage ? "active " : "") +
+      (index < currentStage ? "completed" : "");
+
+    button.innerHTML = `
+      <div class="step-icon">
+        ${index < currentStage ? "✓" : stage.icon}
+      </div>
+
+      <div class="step-info">
+        <div class="step-name">${stage.title}</div>
+        <div class="step-sub">${stage.subtitle}</div>
+      </div>
+    `;
+
+    button.onclick = () => {
+      currentStage = index;
+      render();
+    };
+
+    stepList.appendChild(button);
+  });
+}
+
+
+/* =========================================================
+   INGESTION
+========================================================= */
+
+function renderIngestion() {
+
+  stageBody.innerHTML = `
+
+    <div class="grid-2">
+
+      <div class="card">
+
+        <div class="card-title">Knowledge sources</div>
+
+        ${documents.map((doc, i) => `
+          <div class="document ${i === 0 ? "selected" : ""}">
+            <div class="doc-top">
+              <div class="doc-name">📄 ${doc.name}</div>
+              <div class="doc-type">${doc.type}</div>
+            </div>
+
+            <p>${doc.description}</p>
+
+            <div class="chunk-meta">
+              <span class="tag">${doc.pages} pages</span>
+              <span class="tag">Ready</span>
+            </div>
+          </div>
+        `).join("")}
+
+      </div>
+
+      <div class="card soft">
+
+        <div class="card-title">What happens here?</div>
+
+        <h3 style="margin-top:0;font-size:18px;">
+          Raw knowledge enters the pipeline.
+        </h3>
+
+        <p style="font-size:13px;line-height:1.7;color:var(--muted);">
+          RAG can ingest information from PDFs, webpages, databases,
+          Word documents, APIs, support tickets and many other sources.
+        </p>
+
+        <div class="explanation">
+
+          <strong>Important:</strong>
+
+          <p>
+            In a real system, ingestion usually includes parsing,
+            cleaning, normalization and metadata extraction before
+            chunking begins.
+          </p>
+
+        </div>
+
+        <div class="card" style="margin-top:15px;">
+
+          <div class="card-title">Example metadata</div>
+
+          <div style="font-family:monospace;font-size:11px;line-height:1.8;">
+            document = "Employee Leave Policy.pdf"<br>
+            department = "HR"<br>
+            country = "India"<br>
+            page = 4<br>
+            version = "2026.1"
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+}
+
+
+/* =========================================================
+   CHUNKING
+========================================================= */
+
+function renderChunking() {
+
+  stageBody.innerHTML = `
+
+    <div class="grid-2">
+
+      <div class="card">
+
+        <div class="card-title">
+          Original document
+        </div>
+
+        <div style="
+          font-size:12px;
+          line-height:1.8;
+          color:#475569;
+          background:#f8fafc;
+          padding:16px;
+          border-radius:12px;
+        ">
+
+          <strong>Employee Leave Policy</strong>
+
+          <br><br>
+
+          Employees are entitled to 18 days of annual leave
+          during each calendar year. Annual leave should normally
+          be requested at least 3 working days before the intended
+          leave date.
+
+          <br><br>
+
+          Employees may carry forward up to 5 unused annual leave
+          days into the following calendar year...
+
+        </div>
+
+        <div class="explanation">
+
+          <strong>Why chunk?</strong>
+
+          <p>
+            Sending an entire 50-page document to an LLM every time
+            is inefficient. We want to retrieve only the pieces
+            relevant to the user's question.
+          </p>
+
+        </div>
+
+      </div>
+
+      <div class="card">
+
+        <div class="card-title">
+          Resulting chunks
+        </div>
+
+        ${chunks.slice(0,3).map(chunk => `
+          <div class="chunk">
+
+            <div class="chunk-number">
+              ${chunk.id}
+            </div>
+
+            <div class="chunk-text">
+              ${chunk.text}
+            </div>
+
+            <div class="chunk-meta">
+              <span class="tag">${chunk.metadata}</span>
+              <span class="tag">147 tokens</span>
+            </div>
+
+          </div>
+        `).join("")}
+
+      </div>
+
+    </div>
+
+    <div class="card soft" style="margin-top:16px;">
+
+      <div class="card-title">
+        Chunking strategy
+      </div>
+
+      <div class="grid-3">
+
+        <div>
+          <strong style="font-size:13px;">Fixed-size</strong>
+          <p style="font-size:11px;color:var(--muted);">
+            Split every N tokens or characters.
+          </p>
+        </div>
+
+        <div>
+          <strong style="font-size:13px;">Semantic</strong>
+          <p style="font-size:11px;color:var(--muted);">
+            Split around meaningful topics or paragraphs.
+          </p>
+        </div>
+
+        <div>
+          <strong style="font-size:13px;">Structure-aware</strong>
+          <p style="font-size:11px;color:var(--muted);">
+            Preserve headings, sections, tables and document hierarchy.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="explanation warning">
+
+      <strong>Key idea:</strong>
+
+      <p>
+        A chunk should ideally be small enough to retrieve precisely,
+        but large enough to contain the context required to answer
+        the question.
+      </p>
+
+    </div>
+
+  `;
+}
+
+
+/* =========================================================
+   EMBEDDING
+========================================================= */
+
+function renderEmbedding() {
+
+  const chunk = chunks[0];
+
+  stageBody.innerHTML = `
+
+    <div class="grid-2">
+
+      <div>
+
+        <div class="card">
+
+          <div class="card-title">Input text</div>
+
+          <div style="
+            font-size:13px;
+            line-height:1.7;
+            padding:15px;
+            background:var(--surface-2);
+            border-radius:12px;
+          ">
+            ${chunk.text}
+          </div>
+
+        </div>
+
+        <div style="
+          display:flex;
+          justify-content:center;
+          padding:15px;
+          font-size:25px;
+          color:#9ca3af;
+        ">
+          ↓
+        </div>
+
+        <div class="card">
+
+          <div class="card-title">
+            Embedding model
+          </div>
+
+          <div style="
+            padding:16px;
+            border-radius:12px;
+            background:var(--primary-light);
+            color:var(--primary);
+            text-align:center;
+            font-size:13px;
+            font-weight:800;
+          ">
+            Text → numerical representation
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="card">
+
+        <div class="card-title">
+          Generated embedding
+        </div>
+
+        <div class="vector">
+          [
+            <span class="number">0.12</span>,
+            <span class="number">-0.43</span>,
+            <span class="number">0.78</span>,
+            <span class="number">0.21</span>,
+            <span class="number">-0.09</span>,
+            <span class="number">0.51</span>,
+            <span class="number">-0.22</span>,
+            <span class="number">0.64</span>,
+            <span class="number">...</span>
+          ]
+        </div>
+
+        <div class="explanation">
+
+          <strong>What is this?</strong>
+
+          <p>
+            An embedding represents the semantic meaning of text
+            as numbers in a high-dimensional vector space.
+            Similar meanings tend to be located closer together.
+          </p>
+
+        </div>
+
+        <div class="card soft" style="margin-top:14px;">
+
+          <div class="card-title">
+            Important distinction
+          </div>
+
+          <p style="
+            font-size:12px;
+            line-height:1.7;
+            margin:0;
+            color:#475569;
+          ">
+            The embedding is primarily used to <strong>find</strong>
+            relevant information. The LLM normally receives the
+            <strong>original chunk text</strong>, not this vector.
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+}
+
+
+/* =========================================================
+   DATABASE
+========================================================= */
+
+function renderDatabase() {
+
+  stageBody.innerHTML = `
+
+    <div class="card">
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:15px;
+      ">
+
+        <div>
+          <div class="card-title" style="margin-bottom:3px;">
+            Vector database
+          </div>
+
+          <div style="font-size:13px;font-weight:750;">
+            6 indexed chunks
+          </div>
+        </div>
+
+        <div class="badge">
+          ● Indexed
+        </div>
+
+      </div>
+
+      <div style="
+        border:1px solid var(--border);
+        border-radius:12px;
+        overflow:hidden;
+      ">
+
+        <div class="db-row db-head">
+          <div>ID</div>
+          <div>Chunk</div>
+          <div>Embedding</div>
+          <div>Metadata</div>
+        </div>
+
+        ${chunks.map(chunk => `
+          <div class="db-row">
+
+            <div class="db-id">${chunk.id}</div>
+
+            <div>
+              <div style="font-size:11px;line-height:1.45;">
+                ${chunk.text}
+              </div>
+            </div>
+
+            <div>
+              <div class="vector" style="
+                padding:5px 7px;
+                font-size:8px;
+              ">
+                [${chunk.vector.map(v => v.toFixed(2)).join(", ")}...]
+              </div>
+            </div>
+
+            <div class="metadata">
+              ${chunk.metadata}
+            </div>
+
+          </div>
+        `).join("")}
+
+      </div>
+
+    </div>
+
+    <div class="explanation success">
+
+      <strong>What is actually stored?</strong>
+
+      <p>
+        A practical vector store commonly keeps the embedding alongside
+        the original chunk text and useful metadata. The vector is used
+        for search; the text is later retrieved as context.
+      </p>
+
+    </div>
+
+  `;
+}
+
+
+/* =========================================================
+   RETRIEVAL
+========================================================= */
+
+function renderRetrieval() {
+
+  stageBody.innerHTML = `
+
+    <div class="card">
+
+      <div class="card-title">
+        Step 1 — User query
+      </div>
+
+      <textarea id="queryInput">${userQuery}</textarea>
+
+      <button class="primary" style="margin-top:10px;" onclick="simulateRetrieval()">
+        Run semantic search
+      </button>
+
+    </div>
+
+    <div style="
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      padding:18px;
+      color:var(--muted);
+      font-size:12px;
+    ">
+
+      Query
+      <strong>→</strong>
+      Query embedding
+      <strong>→</strong>
+      Similarity search
+      <strong>→</strong>
+      Top-K candidates
+
+    </div>
+
+    <div id="retrievalResults">
+
+      <div class="card soft">
+
+        <div class="card-title">
+          Retrieval results
+        </div>
+
+        <p style="
+          font-size:12px;
+          color:var(--muted);
+          margin:0;
+        ">
+          Click "Run semantic search" to see which chunks are
+          closest to the user's question.
+        </p>
+
+      </div>
+
+    </div>
+
+    <div class="explanation">
+
+      <strong>What is happening?</strong>
+
+      <p>
+        The user's query is embedded using an embedding model.
+        The resulting query vector is compared against stored
+        chunk vectors using a similarity metric such as cosine
+        similarity. The highest-scoring candidates become the
+        retrieval set.
+      </p>
+
+    </div>
+
+  `;
+}
+
+
+function simulateRetrieval() {
+
+  const container = document.getElementById("retrievalResults");
+
+  if (!container) return;
+
+  container.innerHTML = `
+
+    <div class="card">
+
+      <div class="card-title">
+        Query embedding
+      </div>
+
+      <div class="vector">
+        [
+        <span class="number">0.14</span>,
+        <span class="number">-0.41</span>,
+        <span class="number">0.75</span>,
+        <span class="number">0.25</span>,
+        <span class="number">-0.08</span>,
+        <span class="number">0.49</span>,
+        <span class="number">...</span>
+        ]
+      </div>
+
+    </div>
+
+    <div style="
+      height:15px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#9ca3af;
+    ">↓</div>
+
+    <div class="card">
+
+      <div class="card-title">
+        Top-K = 4 candidates
+      </div>
+
+      ${Object.entries(similarityScores)
+        .sort((a,b) => b[1]-a[1])
+        .slice(0,4)
+        .map(([id,score], index) => {
+
+          const chunk = chunks.find(c => c.id === id);
+
+          return `
+            <div class="rank">
+
+              <div class="rank-number">
+                ${index + 1}
+              </div>
+
+              <div>
+                <div class="rank-text">
+                  <strong>${id}</strong> — ${chunk.text}
+                </div>
+
+                <div class="score">
+                  <div class="score-fill"
+                    style="width:${score*100}%">
+                  </div>
+                </div>
+              </div>
+
+              <div class="rank-score">
+                ${score.toFixed(2)}
+              </div>
+
+            </div>
+          `;
+
+        }).join("")}
+
+    </div>
+
+  `;
+}
+
+
+/* =========================================================
+   RERANKING
+========================================================= */
+
+function renderReranking() {
+
+  const retrievalOrder =
+    Object.entries(similarityScores).sort((a,b) => b[1]-a[1]);
+
+  const reranked =
+    Object.entries(rerankScores).sort((a,b) => b[1]-a[1]);
+
+  stageBody.innerHTML = `
+
+    <div class="grid-2">
+
+      <div class="card">
+
+        <div class="card-title">
+          Before reranking
+        </div>
+
+        ${retrievalOrder.slice(0,4).map(([id,score],i) => {
+
+          const chunk = chunks.find(c => c.id === id);
+
+          return `
+            <div class="rank">
+
+              <div class="rank-number">${i+1}</div>
+
+              <div class="rank-text">
+                <strong>${id}</strong><br>
+                ${chunk.text}
+              </div>
+
+              <div class="rank-score">
+                ${score.toFixed(2)}
+              </div>
+
+            </div>
+          `;
+
+        }).join("")}
+
+      </div>
+
+      <div class="card">
+
+        <div class="card-title">
+          After reranking
+        </div>
+
+        ${reranked.slice(0,4).map(([id,score],i) => {
+
+          const chunk = chunks.find(c => c.id === id);
+
+          return `
+            <div class="rank" style="
+              background:${i < 2 ? '#f0fdf4' : 'transparent'};
+            ">
+
+              <div class="rank-number">${i+1}</div>
+
+              <div class="rank-text">
+                <strong>${id}</strong><br>
+                ${chunk.text}
+              </div>
+
+              <div class="rank-score">
+                ${score.toFixed(2)}
+              </div>
+
+            </div>
+          `;
+
+        }).join("")}
+
+      </div>
+
+    </div>
+
+    <div class="explanation">
+
+      <strong>Why rerank?</strong>
+
+      <p>
+        Vector similarity is a fast first-pass retrieval mechanism.
+        A more expensive reranker can examine the query and candidate
+        text together and estimate which candidates are actually
+        most useful for the question.
+      </p>
+
+    </div>
+
+    <div class="explanation warning">
+
+      <strong>Important:</strong>
+
+      <p>
+        Reranking is not mandatory in every RAG system. Simple systems
+        may directly use the top-K retrieved chunks. More sophisticated
+        systems often retrieve a larger candidate set and then rerank
+        it down to a smaller context set.
+      </p>
+
+    </div>
+
+  `;
+}
+
+
+/* =========================================================
+   CONTEXT ASSEMBLY
+========================================================= */
+
+function renderContext() {
+
+  const topChunks = ["C001","C002"];
+
+  stageBody.innerHTML = `
+
+    <div class="pipeline">
+
+      <div class="pipeline-node">System Prompt</div>
+      <div class="pipeline-arrow">+</div>
+      <div class="pipeline-node">User Query</div>
+      <div class="pipeline-arrow">+</div>
+      <div class="pipeline-node active">Retrieved Context</div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-node">LLM</div>
+
+    </div>
+
+    <div class="grid-2">
+
+      <div class="card">
+
+        <div class="card-title">
+          Retrieved context
+        </div>
+
+        ${topChunks.map(id => {
+
+          const c = chunks.find(x => x.id === id);
+
+          return `
+            <div class="chunk">
+
+              <div class="chunk-number">${c.id}</div>
+
+              <div class="chunk-text">
+                ${c.text}
+              </div>
+
+              <div class="chunk-meta">
+                <span class="tag">${c.metadata}</span>
+              </div>
+
+            </div>
+          `;
+
+        }).join("")}
+
+      </div>
+
+      <div>
+
+        <div class="card">
+
+          <div class="card-title">
+            Final prompt sent to LLM
+          </div>
+
+          <div class="prompt-box">
+
+            <div class="prompt-section system-context">
+
+              <div class="prompt-label">
+                System instruction
+              </div>
+
+              <div class="prompt-content">
+                ${systemPrompt}
+              </div>
+
+            </div>
+
+            <div class="prompt-section user-context">
+
+              <div class="prompt-label">
+                User question
+              </div>
+
+              <div class="prompt-content">
+                ${userQuery}
+              </div>
+
+            </div>
+
+            <div class="prompt-section rag-context">
+
+              <div class="prompt-label">
+                Retrieved context
+              </div>
+
+              <div class="prompt-content">
+                [C001] Employees are entitled to 18 days of annual leave
+                during each calendar year.
+
+                <br><br>
+
+                [C002] Annual leave requests should normally be submitted
+                at least 3 working days before the intended leave date.
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="explanation success">
+
+      <strong>This is the "Augmented" part of RAG.</strong>
+
+      <p>
+        The LLM isn't simply asked the question. The application
+        supplies relevant external context alongside the question.
+        That retrieved context gives the model information it may
+        not have had in its original training data.
+      </p>
+
+    </div>
+
+  `;
+}
+
+
+/* =========================================================
+   GENERATION
+========================================================= */
+
+function renderGeneration() {
+
+  stageBody.innerHTML = `
+
+    <div class="grid-2">
+
+      <div>
+
+        <div class="card">
+
+          <div class="card-title">
+            Input to LLM
+          </div>
+
+          <div class="prompt-box">
+
+            <div class="prompt-section system-context">
+
+              <div class="prompt-label">System</div>
+
+              <div class="prompt-content">
+                ${systemPrompt}
+              </div>
+
+            </div>
+
+            <div class="prompt-section user-context">
+
+              <div class="prompt-label">User</div>
+
+              <div class="prompt-content">
+                ${userQuery}
+              </div>
+
+            </div>
+
+            <div class="prompt-section rag-context">
+
+              <div class="prompt-label">Retrieved knowledge</div>
+
+              <div class="prompt-content">
+                Employees are entitled to 18 days of annual leave
+                during each calendar year.
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div style="
+          text-align:center;
+          padding:18px;
+          color:#9ca3af;
+          font-size:24px;
+        ">
+          ↓
+        </div>
+
+        <div class="card">
+
+          <div class="card-title">
+            Generation
+          </div>
+
+          <div style="
+            display:flex;
+            align-items:center;
+            gap:12px;
+          ">
+
+            <div class="stage-icon">AI</div>
+
+            <div>
+              <strong style="font-size:13px;">
+                Large Language Model
+              </strong>
+
+              <div style="
+                color:var(--muted);
+                font-size:11px;
+                margin-top:3px;
+              ">
+                Reads query + instructions + retrieved context
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div>
+
+        <div class="answer">
+
+          <div class="answer-label">
+            Generated answer
+          </div>
+
+          Employees are entitled to
+          <strong>18 days of annual leave per calendar year</strong>.
+
+          <span class="citation">C001</span>
+
+          <br><br>
+
+          Annual leave should normally be requested at least
+          3 working days before the intended leave date.
+
+          <span class="citation">C002</span>
+
+        </div>
+
+        <div class="explanation success">
+
+          <strong>Notice what happened.</strong>
+
+          <p>
+            The LLM generated natural language directly. There is
+            normally no separate "human-readable conversion" step
+            after the LLM. The generated text is already the response
+            shown to the user.
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="card soft" style="margin-top:18px;">
+
+      <div class="card-title">
+        Your complete mental model
+      </div>
+
+      <div class="pipeline">
+
+        ${[
+          "Documents",
+          "Chunks",
+          "Embeddings",
+          "Vector DB",
+          "Query",
+          "Retrieval",
+          "Reranking",
+          "Context",
+          "LLM",
+          "Answer"
+        ].map((x,i) => `
+
+          <div class="pipeline-node ${i === 8 ? "active" : ""}">
+            ${x}
+          </div>
+
+          ${i < 9 ? '<div class="pipeline-arrow">→</div>' : ""}
+
+        `).join("")}
+
+      </div>
+
+    </div>
+
+  `;
+}
+
+
+/* =========================================================
+   RENDER STAGE
+========================================================= */
+
+function renderStage() {
+
+  const stage = stages[currentStage];
+
+  stageTitle.textContent = stage.title;
+  stageSubtitle.textContent = stage.subtitle;
+  stageIcon.textContent = stage.icon;
+
+  switch(stage.id) {
+
+    case "ingestion":
+      renderIngestion();
+      break;
+
+    case "chunking":
+      renderChunking();
+      break;
+
+    case "embedding":
+      renderEmbedding();
+      break;
+
+    case "database":
+      renderDatabase();
+      break;
+
+    case "retrieval":
+      renderRetrieval();
+      break;
+
+    case "reranking":
+      renderReranking();
+      break;
+
+    case "context":
+      renderContext();
+      break;
+
+    case "generation":
+      renderGeneration();
+      break;
+  }
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function renderNavigation() {
+
+  progressText.textContent =
+    `${currentStage + 1} / ${stages.length}`;
+
+  progressBar.style.width =
+    `${((currentStage + 1) / stages.length) * 100}%`;
+
+  navInfo.textContent =
+    `Stage ${currentStage + 1} of ${stages.length}`;
+
+  prevBtn.disabled = currentStage === 0;
+  nextBtn.textContent =
+    currentStage === stages.length - 1
+      ? "Restart ↻"
+      : "Next →";
+
+  prevBtn.style.opacity =
+    currentStage === 0 ? ".45" : "1";
+}
+
+
+prevBtn.onclick = () => {
+
+  if (currentStage > 0) {
+    currentStage--;
+    render();
+  }
+
+};
+
+
+nextBtn.onclick = () => {
+
+  if (currentStage < stages.length - 1) {
+    currentStage++;
+  } else {
+    currentStage = 0;
+  }
+
+  render();
+
+};
+
+
+/* =========================================================
+   GLOBAL RENDER
+========================================================= */
+
+function render() {
+  renderSidebar();
+  renderStage();
+  renderNavigation();
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+render();
+
+</script>
+
+</body>
+</html>
